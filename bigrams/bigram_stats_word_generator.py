@@ -393,6 +393,24 @@ def normalize_transition_matrix(matrix):
     return matrix / row_sums
 
 
+def calculate_logloss(probs: torch.Tensor, true_indices: torch.Tensor) -> float:
+    """
+    Calculate the negative log likelihood loss for predicted probabilities.
+
+    Args:
+        probs (torch.Tensor): Predicted probabilities for each character [batch_size, vocab_size]
+        true_indices (torch.Tensor): True character indices [batch_size]
+
+    Returns:
+        float: Average negative log likelihood loss
+    """
+    # Get probabilities for the true characters
+    true_probs = probs[torch.arange(len(true_indices)), true_indices]
+    # Calculate negative log likelihood
+    nll = -torch.log(true_probs)
+    return nll.mean().item()
+
+
 def main():
     """
     Main function that demonstrates the complete workflow of analyzing character patterns
@@ -415,7 +433,7 @@ def main():
 
     # Step 1: Load words from file
     print("Step 1: Loading training data...")
-    words = read_words('names.txt')
+    words = read_words('../names.txt')
     print(f"Loaded {len(words)} words for training")
     print(f"Sample words from dataset: {', '.join(words[:5])}\n")
 
