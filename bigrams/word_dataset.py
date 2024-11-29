@@ -6,7 +6,7 @@ from bigrams.tokenizer import TokenizerCharacter
 
 
 @dataclass
-class WordDataset:
+class WordDatasetBigram:
     """Handles word data and training pair generation"""
     words: List[str]
     tokenizer: TokenizerCharacter

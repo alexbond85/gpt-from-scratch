@@ -3,7 +3,7 @@ from bigrams.tokenizer import TokenizerCharacter
 from bigrams.trmatrix import TransitionMatrix
 from bigrams.trmatrix_nn import NeuralTransitionMatrix
 from bigrams.viz import print_matrix_section
-from bigrams.word_dataset import WordDataset
+from bigrams.word_dataset import WordDatasetBigram
 
 
 def _read_names():
@@ -16,7 +16,7 @@ if __name__ == '__main__':
     words = ["cat", "cab", "can", "car", "bat", "bar", "ban"]
     # words = _read_names()
     tokenizer = TokenizerCharacter(words)
-    words_dataset = WordDataset(words, tokenizer)
+    words_dataset = WordDatasetBigram(words, tokenizer)
     markov_matrix = TransitionMatrix.from_words(words, tokenizer)
     print("\nTransition probabilities:")
     print_matrix_section(markov_matrix, tokenizer)

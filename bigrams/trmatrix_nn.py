@@ -6,7 +6,7 @@ from bigrams.loss import calculate_min_loss
 from bigrams.tokenizer import TokenizerCharacter
 from bigrams.trmatrix import TransitionMatrix
 from bigrams.viz import print_matrix_section
-from bigrams.word_dataset import WordDataset
+from bigrams.word_dataset import WordDatasetBigram
 
 
 class NeuralTransitionMatrix:
@@ -66,7 +66,7 @@ class NeuralTransitionMatrix:
             self._probabilities = F.softmax(self.weights, dim=1)
         return self._probabilities
 
-    def train_bigram_model(self, words: WordDataset, learning_rate: float = 0.1, num_epochs: int = 200) -> None:
+    def train_bigram_model(self, words: WordDatasetBigram, learning_rate: float = 0.1, num_epochs: int = 200) -> None:
         """
         Train the transition matrix using neural network optimization.
 
