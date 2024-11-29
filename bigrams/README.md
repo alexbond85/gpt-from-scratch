@@ -1,77 +1,89 @@
-# Learning vs Computing Character Transition Matrices for Word Generation
+# Bigram Character Model Implementation
 
-This project demonstrates two approaches to obtain a character transition matrix for generating synthetic words:
-1. Direct computation from data (statistical counting)
-2. Learning through gradient descent
+A Python implementation of character-level bigram models using both statistical and neural network approaches for generating text sequences.
 
-## The Core Idea: Transition Matrix
+## Overview
 
-Both approaches aim to create the same thing: a matrix T where T[i,j] represents P(char_j | char_i). For example, with words ["cat", "car"]:
+This project implements two approaches to learning character transitions for text generation:
 
-```
-Ideal transition matrix (simplified):
-     c    a    t    r   END
-START 1.0  0    0    0    0
-c     0   1.0  0    0    0
-a     0    0   0.5  0.5  0
-t     0    0    0    0   1.0
-r     0    0    0    0   1.0
-```
+1. Statistical counting-based transition matrix
+2. Neural network-based learned transition probabilities
 
-## Approach 1: Direct Computation
+Both models operate at the character level, learning the probability of each character following another character in the training data.
 
-Count transitions and normalize:
+## Components
+
+### TokenizerCharacter
+
+Handles conversion between characters and indices:
 ```python
-# For "cat", "car":
-transitions = {
-    ('START', 'c'): 2,
-    ('c', 'a'): 2,
-    ('a', 't'): 1,
-    ('a', 'r'): 1,
-    ('t', 'END'): 1,
-    ('r', 'END'): 1
-}
-
-# Normalize per character:
-P(next|current) = count(current->next) / sum(counts from current)
+tokenizer = TokenizerCharacter(["cat", "dog"])
+indices = tokenizer.encode_word("cat")  # [0, 3, 1, 20, 0]
+word = tokenizer.decode_indices(indices)  # "cat"
 ```
 
-## Approach 2: Learning through Gradient Descent
+- Uses special token '.' for both START and END markers
+- Builds vocabulary from unique characters in training data
+- Maps each character to a unique integer index
 
-Instead of counting, we:
-1. Initialize random matrix W
-2. Convert characters to one-hot vectors
-3. Predict next character: P(next) = softmax(current @ W)
-4. Update W to minimize cross-entropy loss
+### TransitionMatrix
 
-Example training step:
+Statistical approach using counted transitions:
 ```python
-# For transition START->c in "cat":
-current = [1,0,0,0,0]  # START one-hot
-target = [0,1,0,0,0]   # 'c' one-hot
-
-pred = softmax(current @ W)
-loss = -log(pred[target])
-W = W - learning_rate * gradient
+matrix = TransitionMatrix.from_words(["cat", "car"], tokenizer)
+generated = matrix.generate_sequence()  # e.g. "cat"
 ```
 
-## Key Differences
+- Counts how often each character follows another in training data
+- Normalizes counts into transition probabilities
+- Generates new words by sampling from learned probabilities
 
-1. Statistical:
-   - Exact counts from data
-   - Zero probability for unseen transitions
-   - Training time: O(N) where N is dataset size
+### NeuralTransitionMatrix 
+
+Neural network approach using gradient descent:
+```python
+matrix = NeuralTransitionMatrix(tokenizer)
+matrix.train_bigram_model(words_dataset)
+generated = matrix.generate_sequence()  # e.g. "car"
+```
+
+- Learns transition probabilities through optimization
+- Uses softmax to convert weights to probabilities
+- Can potentially generalize better to unseen combinations
+- Includes regularization to prevent overfitting
+
+### WordDataset
+
+Handles training data preparation:
+```python
+dataset = WordDataset(["cat", "car"], tokenizer)
+xs, ys = dataset.training_data()  # Returns pairs of consecutive characters
+```
+
+## Motivation
+
+The dual implementation approach demonstrates different ways to solve the same problem:
+
+1. **Statistical Model**: 
+   - Simple and interpretable
    
-2. Learning:
-   - Smooth probabilities through optimization
-   - Non-zero probabilities for unseen transitions (due to softmax)
-   - Training time: O(N * epochs)
+2. **Neural Model**:
+   - Better generalization potential
 
-## Evaluation
+## Usage
 
-Both methods should converge to similar matrices if:
-1. Learning rate and epochs are sufficient
-2. Dataset is large enough
-3. No regularization is applied
+Basic example:
+```python
+words = ["cat", "cab", "can", "car"]
+tokenizer = TokenizerCharacter(words)
+dataset = WordDataset(words, tokenizer)
 
-The minimum achievable loss is the same for both, as they model the same underlying probability distribution.
+# Statistical approach
+markov = TransitionMatrix.from_words(words, tokenizer)
+print(markov.generate_sequence())
+
+# Neural approach
+neural = NeuralTransitionMatrix(tokenizer)
+neural.train_bigram_model(dataset)
+print(neural.generate_sequence())
+```

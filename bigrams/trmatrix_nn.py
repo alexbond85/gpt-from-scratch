@@ -83,6 +83,7 @@ class NeuralTransitionMatrix:
            - Update weights using Adam optimizer
 
         Args:
+            words: WordDataset
             learning_rate: Controls size of weight updates
                          Higher → faster learning but may overshoot
                          Lower → slower but more stable learning
@@ -175,22 +176,4 @@ class NeuralTransitionMatrix:
 
         return self.tokenizer.decode_indices(indices)
 
-
-if __name__ == '__main__':
-    # Example usage showing training and generation
-    words = ["cat", "cab", "can", "car", "bat", "bar", "ban"]
-    tokenizer = TokenizerCharacter(words)
-    words_dataset = WordDataset(words, tokenizer)
-    markov_matrix = TransitionMatrix.from_words(words, tokenizer)
-    print("\nTransition probabilities:")
-    print_matrix_section(markov_matrix, tokenizer)
-    for i in range(5):
-        print(markov_matrix.generate_sequence(seed=i))
-    print("Min loss:", calculate_min_loss(markov_matrix.probabilities, *words_dataset.training_data()))
-    matrix = NeuralTransitionMatrix(tokenizer)
-    matrix.train_bigram_model(words_dataset)
-    print_matrix_section(matrix, tokenizer)
-    print("\nGenerated words:")
-    for i in range(5):
-        print(matrix.generate_sequence(seed=i))
 
