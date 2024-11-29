@@ -49,8 +49,6 @@ generated = matrix.generate_sequence()  # e.g. "car"
 
 - Learns transition probabilities through optimization
 - Uses softmax to convert weights to probabilities
-- Can potentially generalize better to unseen combinations
-- Includes regularization to prevent overfitting
 
 ### WordDataset
 
